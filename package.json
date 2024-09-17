@@ -3,11 +3,11 @@
   "version": "1.0.0",
   "description": "trullo",
   "type": "module",
-  "main": "index.ts",
+  "main": "server.ts",
   "scripts": {
-    "start-typescript": "npx tsx watch ./src/index.ts",
-    "start-javascript": "nodemon ./src/index.js",
-    "start-dist": "nodemon ./dist/index.js"
+    "start-typescript": "npx tsx watch ./src/server.ts",
+    "start-javascript": "nodemon ./src/server.js",
+    "start-dist": "nodemon ./dist/server.js"
   },
   "keywords": [],
   "author": "",
