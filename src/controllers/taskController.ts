@@ -44,14 +44,14 @@ export const getTask = async (req: Request, res: Response) => {
 export const createTask = async (req: Request, res: Response) => {
   try {
     const newTask = await Task.create(req.body);
-    res.status(201).json({
+    res.status(200).json({
       status: "success",
       data: { newTask },
     });
   } catch (err) {
     res.status(400).json({
       status: "fail",
-      message: "Error creating task",
+      message: err,
     });
   }
 };

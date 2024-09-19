@@ -1,29 +1,26 @@
-import express, { Request, Response } from "express";
-import tasksRouter from "./routes/taskRoute";
-// import userRouter from ("./routes/taskRoute");
+import mongoose from "mongoose";
+import dotenv from "dotenv";
+import app from "./app";
+dotenv.config({ path: "./config.env" });
 
-import connect from "./utils/dbConnection";
+// Ersätt lösenordet i databasanropet
+const DB = process.env.DATABASE?.replace(
+  "<PASSWORD>",
+  process.env.DATABASE_PASSWORD || ""
+);
 
-const app = express();
-app.use(express.json());
-
-// Anslut till databasen
-connect();
-
-// Använd router för uppgifter
-app.use("/api/tasks", tasksRouter);
-// app.use("/api/users", userRouter);
-
-// Ifall 404 på endpoint
-app.all("*", (req, res, rext) => {
-  res.status(404).json({
-    status: "fail",
-    message: `Can't find ${req.originalUrl} on this server`,
+// Anslut till databasen med mongoose
+mongoose
+  .connect(DB as string)
+  .then(() => {
+    console.log("Connection successful");
+  })
+  .catch((err) => {
+    console.error("Database connection error:", err);
   });
-});
 
 // Starta servern
-const port = 3000;
+const port = process.env.PORT || 3000;
 app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
+  console.log(`App running on port ${port}`);
 });

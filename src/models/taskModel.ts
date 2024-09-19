@@ -24,18 +24,19 @@ const taskSchema: Schema<ITask> = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ["to-do", "in progress", "blocked", "done"], // Begränsade statusvärden
+    enum: ["to-do", "in progress", "blocked", "done"],
     default: "to-do",
     required: [true, "A task must have a status"],
   },
   assignedTo: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User", // Referens till User-modellen
+    // type: mongoose.Schema.Types.ObjectId,
+    type: String,
+    ref: "User",
     required: [true, "A task must be assigned to a user"],
   },
   createdAt: {
     type: Date,
-    default: Date.now, // Automatisk timestamp vid skapande
+    default: Date.now,
   },
   finishedBy: {
     type: Date,
