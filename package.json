@@ -6,7 +6,7 @@
   "scripts": {
     "build": "tsc",
     "typescript": "npx tsx watch ./src/server.ts",
-    "dist": "node ./dist/server.js"
+    "dist": "cross-env NODE_ENV=production node ./dist/server.js"
   },
   "keywords": [],
   "author": "",
@@ -15,6 +15,7 @@
     "@types/express": "^4.17.21",
     "@types/mongoose": "^5.11.97",
     "@types/morgan": "^1.9.9",
+    "cross-env": "^7.0.3",
     "nodemon": "^3.1.4",
     "ts-node": "^10.9.2",
     "tsx": "^4.19.0",

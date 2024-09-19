@@ -10,6 +10,7 @@ const taskSchema = new mongoose_1.default.Schema({
         type: String,
         required: [true, "A task must have a title"],
         trim: true,
+        unique: true,
     },
     description: {
         type: String,
@@ -23,8 +24,8 @@ const taskSchema = new mongoose_1.default.Schema({
         required: [true, "A task must have a status"],
     },
     assignedTo: {
-        // type: mongoose.Schema.Types.ObjectId,
-        type: String,
+        type: mongoose_1.default.Schema.Types.ObjectId,
+        // type: String,
         ref: "User",
         required: [true, "A task must be assigned to a user"],
     },

@@ -16,6 +16,7 @@ const taskSchema: Schema<ITask> = new mongoose.Schema({
     type: String,
     required: [true, "A task must have a title"],
     trim: true,
+    unique: true,
   },
   description: {
     type: String,
