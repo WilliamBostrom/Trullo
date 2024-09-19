@@ -1,14 +1,17 @@
 import express, { Request, Response, NextFunction } from "express";
-
-const app = express();
-
+import AppError from "./middlewares/AppError";
+import ErrorHandler from "./controllers/ErrorController";
 import taskRouter from "./routes/taskRoute";
 
-// Utökar Request-typen för att inkludera `requestTime`
+// Skapa Express-app
+const app = express();
+
+// Utöka Request-typen för att inkludera `requestTime`
 interface CustomRequest extends Request {
   requestTime?: string;
 }
 
+// Middleware för att lägga till requestTime
 app.use(express.json());
 
 app.use((req: CustomRequest, res: Response, next: NextFunction) => {
@@ -20,11 +23,11 @@ app.use((req: CustomRequest, res: Response, next: NextFunction) => {
 app.use("/api/tasks", taskRouter);
 
 // Felhantering för okända URL:er
-app.all("*", (req: CustomRequest, res: Response) => {
-  res.status(404).json({
-    status: "fail",
-    message: `Can't find ${req.originalUrl} on this server`,
-  });
+app.all("*", (req: CustomRequest, res: Response, next: NextFunction) => {
+  next(new AppError(`Can't find ${req.originalUrl} on this server`, 404));
 });
+
+// Global felhanterare
+app.use(ErrorHandler);
 
 export default app;
