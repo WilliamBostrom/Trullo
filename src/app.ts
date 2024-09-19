@@ -1,10 +1,15 @@
 import express, { Request, Response, NextFunction } from "express";
+import morgan from "morgan";
 import AppError from "./middlewares/AppError";
 import ErrorHandler from "./controllers/ErrorController";
 import taskRouter from "./routes/taskRoute";
 
 // Skapa Express-app
 const app = express();
+
+if (process.env.NODE_ENV === "development") {
+  app.use(morgan("dev"));
+}
 
 // Utöka Request-typen för att inkludera `requestTime`
 interface CustomRequest extends Request {
