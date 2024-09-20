@@ -8,10 +8,12 @@ export interface IUser extends Document {
   email: string;
   password: string;
   passwordConfirm?: string;
+  passwordChangedAt?: Date;
   correctPassword(
     candidatePassword: string,
     userPassword: string
-  ): Promise<boolean>; // Typ för correctPassword
+  ): Promise<boolean>;
+  changedPasswordAfter(JWTTimestamp: number): boolean;
 }
 
 const userSchema: Schema<IUser> = new mongoose.Schema({
@@ -42,6 +44,7 @@ const userSchema: Schema<IUser> = new mongoose.Schema({
       message: "Password are not the same",
     },
   },
+  passwordChangedAt: Date,
 });
 
 userSchema.pre("save", async function (next): Promise<void> {
@@ -59,6 +62,20 @@ userSchema.methods.correctPassword = async function (
   userPassword: string
 ): Promise<boolean> {
   return await bcrypt.compare(candidatePassword, userPassword);
+};
+
+// Metod för att kontrollera om lösenordet ändrades efter att JWT-token genererades
+userSchema.methods.changedPasswordAfter = function (
+  JWTTimestamp: number
+): boolean {
+  if (this.passwordChangedAt) {
+    const changedTimeStamp = Math.floor(
+      this.passwordChangedAt.getTime() / 1000
+    );
+    return JWTTimestamp < changedTimeStamp;
+  }
+
+  return false;
 };
 
 const User = mongoose.model<IUser>("User", userSchema);

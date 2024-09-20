@@ -1,12 +1,13 @@
 import express, { Request, Response } from "express";
 
 import * as taskController from "../controllers/taskController";
+import * as authController from "../controllers/authController";
 
 const router = express.Router();
 
 router
   .route("/")
-  .get(taskController.getAllTasks)
+  .get(authController.protect, taskController.getAllTasks)
   .post(taskController.createTask);
 
 router

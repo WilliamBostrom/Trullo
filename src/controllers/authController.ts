@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
-import jwt from "jsonwebtoken";
+// import { promisify } from "util";
+import jwt, { JwtPayload } from "jsonwebtoken";
 import User, { IUser } from "../models/userModel";
 import asyncHandler from "../middlewares/asyncHandler";
 import AppError from "../middlewares/AppError";
@@ -14,13 +15,12 @@ const signToken = (id: string) => {
 // Signup-funktion
 export const signup = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
-    const { name, email, password, passwordConfirm } = req.body;
-
     const newUser: IUser = await User.create({
-      name,
-      email,
-      password,
-      passwordConfirm,
+      name: req.body.name,
+      email: req.body.email,
+      password: req.body.password,
+      passwordConfirm: req.body.passwordConfirm,
+      passwordChangedAt: req.body.passwordChangedAt,
     });
 
     const token = signToken(newUser._id.toString());
@@ -56,5 +56,55 @@ export const login = asyncHandler(
       status: "success",
       token,
     });
+  }
+);
+
+// Skyddsmeddelande för att skydda rutter med JWT-autentisering
+export const protect = asyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    // 1) Hämta token och kontrollera om den finns
+    let token;
+    if (
+      req.headers.authorization &&
+      req.headers.authorization.startsWith("Bearer")
+    ) {
+      token = req.headers.authorization.split(" ")[1];
+    } else if (req.cookies.jwt) {
+      token = req.cookies.jwt;
+    }
+
+    if (!token) {
+      return next(
+        new AppError("You are not logged in! Please log in to get access.", 401)
+      );
+    }
+
+    // 2) Verifiera token
+    const decoded = jwt.verify(
+      token,
+      process.env.JWT_SECRET as string
+    ) as JwtPayload;
+
+    // 3) Kontrollera om användaren finns
+    const freshUser = await User.findById(decoded.id);
+    if (!freshUser) {
+      return next(
+        new AppError("The user belonging to this token no longer exists.", 401)
+      );
+    }
+
+    // 4) Kontrollera om användaren har ändrat sitt lösenord efter att JWT-token genererades
+    if (freshUser.changedPasswordAfter(decoded.iat!)) {
+      return next(
+        new AppError(
+          "User recently changed password! Please log in again.",
+          401
+        )
+      );
+    }
+
+    // 5) Tilldela användaren till req-objektet för framtida åtkomst
+    req.user = freshUser;
+    next();
   }
 );
