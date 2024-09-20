@@ -1,7 +1,11 @@
 import express, { Request, Response } from "express";
 import * as userController from "../controllers/userController";
+import * as authController from "../controllers/authController";
 
 const router = express.Router();
+
+router.post("/signup", authController.signup);
+router.post("/login", authController.login);
 
 // Hantera alla users
 router

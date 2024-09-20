@@ -2,11 +2,16 @@ import mongoose, { Document, Schema } from "mongoose";
 import validator from "validator";
 import bcrypt from "bcryptjs";
 
-interface IUser extends Document {
+export interface IUser extends Document {
+  _id: mongoose.Types.ObjectId;
   name: string;
   email: string;
   password: string;
   passwordConfirm?: string;
+  correctPassword(
+    candidatePassword: string,
+    userPassword: string
+  ): Promise<boolean>; // Typ för correctPassword
 }
 
 const userSchema: Schema<IUser> = new mongoose.Schema({
@@ -25,6 +30,7 @@ const userSchema: Schema<IUser> = new mongoose.Schema({
     type: String,
     minlength: 8,
     required: [true, "Please provide a password"],
+    select: false,
   },
   passwordConfirm: {
     type: String,
@@ -46,6 +52,14 @@ userSchema.pre("save", async function (next): Promise<void> {
   this.passwordConfirm = undefined;
   next();
 });
+
+// correctPassword metod för att jämföra lösenord
+userSchema.methods.correctPassword = async function (
+  candidatePassword: string,
+  userPassword: string
+): Promise<boolean> {
+  return await bcrypt.compare(candidatePassword, userPassword);
+};
 
 const User = mongoose.model<IUser>("User", userSchema);
 
