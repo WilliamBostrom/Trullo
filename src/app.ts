@@ -5,8 +5,6 @@ import ErrorHandler from "./controllers/ErrorController";
 import taskRouter from "./routes/taskRoute";
 import userRouter from "./routes/userRoute";
 
-
-
 // Skapa Express-app
 const app = express();
 
