@@ -30,8 +30,7 @@ const taskSchema: Schema<ITask> = new mongoose.Schema({
     required: [true, "A task must have a status"],
   },
   assignedTo: {
-    // type: mongoose.Schema.Types.ObjectId,
-    type: String,
+    type: mongoose.Schema.Types.ObjectId,
     ref: "User",
     required: [true, "A task must be assigned to a user"],
   },
@@ -44,7 +43,6 @@ const taskSchema: Schema<ITask> = new mongoose.Schema({
   },
 });
 
-// Skapa och exportera Task-modellen baserad på schema och interface
 const Task = mongoose.model<ITask>("Task", taskSchema);
 
 export default Task;

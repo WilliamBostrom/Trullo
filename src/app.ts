@@ -3,6 +3,7 @@ import morgan from "morgan";
 import AppError from "./middlewares/AppError";
 import ErrorHandler from "./controllers/ErrorController";
 import taskRouter from "./routes/taskRoute";
+import userRouter from "./routes/userRoute";
 
 // Skapa Express-app
 const app = express();
@@ -26,6 +27,7 @@ app.use((req: CustomRequest, res: Response, next: NextFunction) => {
 
 // Routes
 app.use("/api/tasks", taskRouter);
+app.use("/api/users", userRouter);
 
 // Felhantering för okända URL:er
 app.all("*", (req: CustomRequest, res: Response, next: NextFunction) => {

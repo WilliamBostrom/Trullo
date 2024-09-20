@@ -10,14 +10,21 @@ const DB = process.env.DATABASE?.replace(
 );
 
 // Anslut till databasen med mongoose
-mongoose
-  .connect(DB as string)
-  .then(() => {
-    console.log("Connection successful");
-  })
-  .catch((err) => {
-    console.error("Database connection error:", err);
+// mongoose
+//   .connect(DB as string)
+//   .then(() => {
+//     console.log("Connection successful");
+//   })
+//   .catch((err) => {
+//     console.error("Database connection error:", err);
+//   });
+
+async function main() {
+  await mongoose.connect(DB as string).then((con) => {
+    console.log("Connection succesfull");
   });
+}
+main().catch((err) => console.log(err.name, err.message));
 
 // Starta servern
 const port = process.env.PORT || 3000;
