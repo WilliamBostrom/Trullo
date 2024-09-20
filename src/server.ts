@@ -3,6 +3,13 @@ import dotenv from "dotenv";
 import app from "./app";
 dotenv.config({ path: "./config.env" });
 
+// Fånga okontrollerade synkrona undantag
+process.on("uncaughtException", (err: Error) => {
+  console.log("UNCAUGHT EXCEPTION! 💥 Shutting down...");
+  console.log(err.name, err.message);
+  process.exit(1);
+});
+
 // Ersätt lösenordet i databasanropet
 const DB = process.env.DATABASE?.replace(
   "<PASSWORD>",
@@ -10,21 +17,16 @@ const DB = process.env.DATABASE?.replace(
 );
 
 // Anslut till databasen med mongoose
-// mongoose
-//   .connect(DB as string)
-//   .then(() => {
-//     console.log("Connection successful");
-//   })
-//   .catch((err) => {
-//     console.error("Database connection error:", err);
-//   });
-
 async function main() {
   await mongoose.connect(DB as string).then((con) => {
-    console.log("Connection succesfull");
+    console.log("Connection successful");
   });
 }
-main().catch((err) => console.log(err.name, err.message));
+main().catch((err: Error) => {
+  console.log("DATABASE CONNECTION FAILED! 💥 Shutting down...");
+  console.log(err.name, err.message);
+  process.exit(1);
+});
 
 // Starta servern
 const port = process.env.PORT || 3000;
