@@ -1,9 +1,10 @@
 import { Request, Response, NextFunction } from "express";
-// import { promisify } from "util";
+import crypto from "crypto";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import User, { IUser } from "../models/userModel";
 import asyncHandler from "../middlewares/asyncHandler";
 import AppError from "../middlewares/AppError";
+import sendEmail from "../utils/email";
 
 // Funktion för att skapa en JWT-token
 const signToken = (id: string) => {
@@ -64,7 +65,7 @@ export const login = asyncHandler(
 export const protect = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     // 1) Hämta token och kontrollera om den finns
-    let token;
+    let token: string | undefined;
     if (
       req.headers.authorization &&
       req.headers.authorization.startsWith("Bearer")
@@ -110,15 +111,93 @@ export const protect = asyncHandler(
   }
 );
 
-// exports.restrictTo = (...roles) => {
-//   return (req: Request, res: Response, next: NextFunction) => {
-//     // roles ['admin', 'lead-guide']. role='user'
-//     if (!roles.includes(req.user.role)) {
-//       return next(
-//         new AppError("You do not have permission to perform this action", 403)
-//       );
-//     }
+exports.restrictTo = (...roles: string[]) => {
+  return (req: Request, res: Response, next: NextFunction) => {
+    // roles ['admin', 'lead-guide']. role='user'
+    if (!roles.includes((req as any).user.role)) {
+      return next(
+        new AppError("You do not have permission to perform this action", 403)
+      );
+    }
 
-//     next();
-//   };
-// };
+    next();
+  };
+};
+
+exports.forgotPassword = asyncHandler(async (req, res, next) => {
+  // 1) Get user based on POSTed email
+  const user = await User.findOne({ email: req.body.email });
+  if (!user) {
+    return next(new AppError("There is no user with email address.", 404));
+  }
+
+  // 2) Generate the random reset token
+  const resetToken = user.createPasswordResetToken();
+  await user.save({ validateBeforeSave: false });
+
+  // 3) Send it to user's email
+  const resetURL = `${req.protocol}://${req.get(
+    "host"
+  )}/api/users/resetPassword/${resetToken}`;
+
+  const message = `Forgot your password? Submit a PATCH request with your new password and passwordConfirm to: ${resetURL}. If you didn't forget your password, please ignore this email!`;
+
+  try {
+    await sendEmail({
+      email: user.email,
+      subject: "Your password reset token (valid for 10 min)",
+      message,
+    });
+
+    res.status(200).json({
+      status: "success",
+      message: "Token sent to email!",
+    });
+  } catch (err) {
+    user.passwordResetToken = undefined;
+    user.passwordResetExpires = undefined;
+    await user.save({ validateBeforeSave: false });
+
+    return next(
+      new AppError(
+        "There was an error sending the email. Try again later!",
+        500
+      )
+    );
+  }
+});
+
+exports.resetPassword = asyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    // 1) Get user based on token
+    const hashedToken = crypto
+      .createHash("sha256")
+      .update(req.params.token)
+      .digest("hex");
+
+    const user = await User.findOne({
+      passwordResetToken: hashedToken,
+      passwordResetExpires: { $gt: Date.now() },
+    });
+
+    // 2) if token not expired, set new pw
+    if (!user) {
+      return next(new AppError("Token is invalid or expired", 400));
+    }
+    user.password = req.body.password;
+    user.passwordConfirm = req.body.passwordConfirm;
+    user.passwordResetToken = undefined;
+    user.passwordResetExpires = undefined;
+    await user.save();
+
+    //3) update changedPasswordAt
+
+    // 4) Log in the user + send jwt
+    const token = signToken(user._id.toString());
+
+    res.status(200).json({
+      status: "success",
+      token,
+    });
+  }
+);

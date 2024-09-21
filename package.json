@@ -17,6 +17,7 @@
     "@types/jsonwebtoken": "^9.0.7",
     "@types/mongoose": "^5.11.97",
     "@types/morgan": "^1.9.9",
+    "@types/nodemailer": "^6.4.16",
     "@types/validator": "^13.12.2",
     "cross-env": "^7.0.3",
     "nodemon": "^3.1.4",
@@ -31,6 +32,7 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.6.1",
     "morgan": "^1.10.0",
+    "nodemailer": "^6.9.15",
     "validator": "^13.12.0"
   }
 }

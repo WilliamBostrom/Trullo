@@ -1,4 +1,5 @@
 import mongoose, { Document, Schema } from "mongoose";
+import crypto from "crypto";
 import validator from "validator";
 import bcrypt from "bcryptjs";
 
@@ -10,11 +11,14 @@ export interface IUser extends Document {
   password: string;
   passwordConfirm?: string;
   passwordChangedAt?: Date;
+  passwordResetToken?: String;
+  passwordResetExpires?: Date;
   correctPassword(
     candidatePassword: string,
     userPassword: string
   ): Promise<boolean>;
   changedPasswordAfter(JWTTimestamp: number): boolean;
+  createPasswordResetToken(): string;
 }
 
 const userSchema: Schema<IUser> = new mongoose.Schema({
@@ -51,6 +55,8 @@ const userSchema: Schema<IUser> = new mongoose.Schema({
     },
   },
   passwordChangedAt: Date,
+  passwordResetToken: String,
+  passwordResetExpires: Date,
 });
 
 userSchema.pre("save", async function (next): Promise<void> {
@@ -61,6 +67,14 @@ userSchema.pre("save", async function (next): Promise<void> {
   this.passwordConfirm = undefined;
   next();
 });
+
+//Update pwchangedAt
+// userSchema.pre('save', function (next) {
+//   if (!this.isModified('password') || this.isNew) return next();
+
+//   this.passwordChangedAt = Date.now() - 1000;
+//   next();
+// });
 
 // correctPassword metod för att jämföra lösenord
 userSchema.methods.correctPassword = async function (
@@ -82,6 +96,21 @@ userSchema.methods.changedPasswordAfter = function (
   }
 
   return false;
+};
+
+userSchema.methods.createPasswordResetToken = function () {
+  const resetToken = crypto.randomBytes(32).toString("hex");
+
+  this.passwordResetToken = crypto
+    .createHash("sha256")
+    .update(resetToken)
+    .digest("hex");
+
+  console.log({ resetToken }, this.passwordResetToken);
+
+  this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
+
+  return resetToken;
 };
 
 const User = mongoose.model<IUser>("User", userSchema);
