@@ -6,6 +6,7 @@ export interface IUser extends Document {
   _id: mongoose.Types.ObjectId;
   name: string;
   email: string;
+  role: string;
   password: string;
   passwordConfirm?: string;
   passwordChangedAt?: Date;
@@ -27,6 +28,11 @@ const userSchema: Schema<IUser> = new mongoose.Schema({
     lowercase: true,
     required: [true, "Please provide your email"],
     validate: [validator.isEmail, "Please provide a valid email"],
+  },
+  role: {
+    type: String,
+    enum: ["user", "admin"],
+    default: "user",
   },
   password: {
     type: String,
