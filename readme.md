@@ -26,7 +26,7 @@
 
 #### Bonus
 
-- Jag hade även inkluderat config.env i .gitignore om det inte vore för att möjliggöra enkel testning av projektet.
+- Jag har tyvärr även inkluderat min config.env i .gitignore, men följ stegen nedan eller kontakta mig om något fel inträffar.
 
 ### Felhantering
 
@@ -34,11 +34,39 @@ Fel hanteras genom att fånga okontrollerade undantag och databaskopplingsfel me
 
 ### E-postfunktionalitet
 
-Applikationen inkluderar e-postfunktioner som skickar återställningslänkar till användare via nodemailer (kommer till mailto.io, uppdatera till din egna mailto.io i config.env för kunna se mailet för återställa lösenord). Detta görs genom att skicka e-postmeddelanden med viktiga upplysningar.
+Applikationen inkluderar e-postfunktioner som skickar återställningslänkar till användare via nodemailer (kommer till mailto.io, uppdatera till din egna mailtrap.io i config.env för kunna se mailet för återställa lösenord). Detta görs genom att skicka e-postmeddelanden med viktiga upplysningar.
 
 ### Sammanfattning
 
 Genom att kombinera dessa funktioner erbjuder Trullo en intuitiv och säker plattform för projektledning, där användare kan enkelt hantera sina uppgifter och samarbeta i olika projekt.
+
+## Kom igång med projektet
+
+För att komma igång med projektet, följ dessa steg efter att du har klonat det till din dator:
+
+1. **Skapa en konfigurationsfil:**
+
+   - Skapa en fil med namnet `config.env` i root-mappen av projektet.
+
+2. **Lägg till nödvändig konfiguration:**
+
+   - Om du inte redan har ett konto, registrera dig på [Mailtrap](https://www.mailtrap.io) för att kunna ta emot e-postmeddelanden. Uppdatera sedan `EMAIL_USERNAME` och `EMAIL_PASSWORD` i `config.env` med dina kontouppgifter.
+   - Om du vill använda din egen MongoDB-databas, be om tillgång till min databas eller lägg in dina egna uppgifter enligt formatet nedan:
+
+   ```plaintext
+   NODE_ENV=development
+   PORT=3000
+   DATABASE=mongodb+srv://dittnamn:<PASSWORD>@trullo.exempel.mongodb.net/
+   DATABASE_PASSWORD=databaspasswordhär
+
+   JWT_SECRET=hemligt-pw-som-ska-vara-minst-trettiotvå-tecken
+   JWT_EXPIRES_IN=1d
+
+   EMAIL_USERNAME=de4286ad37a402
+   EMAIL_PASSWORD=06d0065ef3cb2e
+   EMAIL_HOST=sandbox.smtp.mailtrap.io
+   EMAIL_PORT=2525
+   ```
 
 ## Komma igång i utvecklingsläge
 
