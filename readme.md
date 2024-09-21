@@ -1,4 +1,4 @@
-#Trullo
+# Trullo
 
 ### Användarregistrering och Inloggning
 
@@ -23,6 +23,10 @@
 - **Rollbaserad åtkomst**: Administratörer har fler behörigheter jämfört med vanliga användare, vilket gör det möjligt för dem att hantera vilka uppgifter som kan tas bort (har ej lagt till mer just nu).
 
 - **Övriga säkerhetsåtgärder**: Lösenord hanteras säkert genom att de hashas och aldrig visas i databasen. Applikationen har även olika felmeddelanden beroende på om den körs i produktions- eller utvecklingsläge, vilket ger bättre insikter och säkerhet för användarna.
+
+#### Bonus
+
+- Jag hade även inkluderat config.env i .gitignore om det inte vore för att möjliggöra enkel testning av projektet.
 
 ### Felhantering
 
