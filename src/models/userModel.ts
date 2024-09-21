@@ -2,6 +2,7 @@ import mongoose, { Document, Schema } from "mongoose";
 import crypto from "crypto";
 import validator from "validator";
 import bcrypt from "bcryptjs";
+import { NextFunction } from "express";
 
 export interface IUser extends Document {
   _id: mongoose.Types.ObjectId;
@@ -68,13 +69,16 @@ userSchema.pre("save", async function (next): Promise<void> {
   next();
 });
 
-//Update pwchangedAt
-// userSchema.pre('save', function (next) {
-//   if (!this.isModified('password') || this.isNew) return next();
+// Update pwchangedAt
+userSchema.pre("save", function (next) {
+  const user = this as IUser;
 
-//   this.passwordChangedAt = Date.now() - 1000;
-//   next();
-// });
+  if (!user.isModified("password") || user.isNew) {
+    return next();
+  }
+  user.passwordChangedAt = new Date(Date.now() - 1000);
+  next();
+});
 
 // correctPassword metod för att jämföra lösenord
 userSchema.methods.correctPassword = async function (

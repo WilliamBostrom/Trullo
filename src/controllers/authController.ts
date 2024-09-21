@@ -23,9 +23,11 @@ export const signup = asyncHandler(
       password: req.body.password,
       passwordConfirm: req.body.passwordConfirm,
       passwordChangedAt: req.body.passwordChangedAt,
+      passwordResetToken: req.body.passwordResetToken,
+      passwordResetExpires: req.body.passwordResetToken,
     });
 
-    const token = signToken(newUser._id.toString());
+    const token = signToken(newUser._id.toHexString());
 
     res.status(201).json({
       status: "success",
@@ -53,7 +55,7 @@ export const login = asyncHandler(
       return next(new AppError("Incorrect email or password", 401));
     }
     // 3) Om allt stämmer, skicka tillbaka en JWT-token
-    const token = signToken(user._id.toString());
+    const token = signToken(user._id.toHexString());
     res.status(200).json({
       status: "success",
       token,
@@ -111,7 +113,7 @@ export const protect = asyncHandler(
   }
 );
 
-exports.restrictTo = (...roles: string[]) => {
+export const restrictTo = (...roles: string[]) => {
   return (req: Request, res: Response, next: NextFunction) => {
     // roles ['admin', 'lead-guide']. role='user'
     if (!roles.includes((req as any).user.role)) {
@@ -124,7 +126,7 @@ exports.restrictTo = (...roles: string[]) => {
   };
 };
 
-exports.forgotPassword = asyncHandler(async (req, res, next) => {
+export const forgotPassword = asyncHandler(async (req, res, next) => {
   // 1) Get user based on POSTed email
   const user = await User.findOne({ email: req.body.email });
   if (!user) {
@@ -167,7 +169,7 @@ exports.forgotPassword = asyncHandler(async (req, res, next) => {
   }
 });
 
-exports.resetPassword = asyncHandler(
+export const resetPassword = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     // 1) Get user based on token
     const hashedToken = crypto
