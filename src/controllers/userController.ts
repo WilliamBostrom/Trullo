@@ -1,16 +1,62 @@
 import { Request, Response, NextFunction } from "express";
-import User from "../models/userModel";
 import asyncHandler from "../middlewares/asyncHandler";
 import AppError from "../middlewares/AppError";
+import User, { IUser } from "../models/userModel";
+
+const filterObj = (obj: { [key: string]: any }, ...allowedFields: string[]) => {
+  const newObj: { [key: string]: any } = {};
+  Object.keys(obj).forEach((el) => {
+    if (allowedFields.includes(el)) newObj[el] = obj[el];
+  });
+  return newObj;
+};
 
 // Hämta alla användare
 export const getAllUsers = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
-    const users = await User.find({});
+    const users: IUser[] = await User.find({});
     res.status(200).json({
       status: "success",
       results: users.length,
       data: { users },
+    });
+  }
+);
+
+export const updateMe = asyncHandler(
+  async (
+    req: Request & { user?: IUser },
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
+    // 1) Skapa ett felmeddelande om användaren skickar lösenord
+    if (req.body.password || req.body.passwordConfirm) {
+      return next(
+        new AppError(
+          "This route is not for password updates. Please use /updateMyPassword.",
+          400
+        )
+      );
+    }
+
+    // 2) Filtrera ut fält som inte är tillåtna att uppdatera
+    const filteredBody = filterObj(req.body, "name", "email");
+
+    // 3) Uppdatera användarens dokument
+    const updatedUser = await User.findByIdAndUpdate(
+      req.user?.id,
+      filteredBody,
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+
+    res.status(200).json({
+      status: "success",
+      data: {
+        user: updatedUser,
+      },
     });
   }
 );

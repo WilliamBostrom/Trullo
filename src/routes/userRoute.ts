@@ -4,9 +4,18 @@ import * as authController from "../controllers/authController";
 
 const router = express.Router();
 
+router.patch(
+  "/updateMyPassword",
+  authController.protect,
+  authController.updatePassword
+);
+
+router.patch("/updateMe", authController.protect, userController.updateMe);
+
 router.post("/signup", authController.signup);
 router.post("/login", authController.login);
 
+//Mailtrap.io används för få email
 router.post("/forgotPassword", authController.forgotPassword);
 router.patch("/resetPassword/:token", authController.resetPassword);
 

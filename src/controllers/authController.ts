@@ -115,7 +115,7 @@ export const protect = asyncHandler(
 
 export const restrictTo = (...roles: string[]) => {
   return (req: Request, res: Response, next: NextFunction) => {
-    // roles ['admin', 'lead-guide']. role='user'
+    // roles ['admin', 'user']. role='user'
     if (!roles.includes((req as any).user.role)) {
       return next(
         new AppError("You do not have permission to perform this action", 403)
@@ -195,6 +195,35 @@ export const resetPassword = asyncHandler(
     //3) update changedPasswordAt
 
     // 4) Log in the user + send jwt
+    const token = signToken(user._id.toString());
+
+    res.status(200).json({
+      status: "success",
+      token,
+    });
+  }
+);
+
+export const updatePassword = asyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    // 1) Get user from collection
+    const user = await User.findById(req.user?.id).select("password");
+
+    if (!user) {
+      return next(new AppError("User not found", 404));
+    }
+    //  2) Check if POSTed current password i correct
+    if (
+      !(await user.correctPassword(req.body.passwordCurrent, user.password))
+    ) {
+      return next(new AppError("Your current password is wrong.", 401));
+    }
+    // 3 If so, update pw
+    user.password = req.body.password;
+    user.passwordConfirm = req.body.passwordConfirm;
+    await user.save();
+
+    // 4) Log in send jwt token
     const token = signToken(user._id.toString());
 
     res.status(200).json({
