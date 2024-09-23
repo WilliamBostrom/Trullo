@@ -1,8 +1,7 @@
-import mongoose, { Document, Schema } from "mongoose";
+import mongoose, { Document, Schema, Query } from "mongoose";
 import crypto from "crypto";
 import validator from "validator";
 import bcrypt from "bcryptjs";
-import { NextFunction } from "express";
 
 export interface IUser extends Document {
   _id: mongoose.Types.ObjectId;
@@ -12,8 +11,9 @@ export interface IUser extends Document {
   password: string;
   passwordConfirm?: string;
   passwordChangedAt?: Date;
-  passwordResetToken?: String;
+  passwordResetToken?: string;
   passwordResetExpires?: Date;
+  active: boolean;
   correctPassword(
     candidatePassword: string,
     userPassword: string
@@ -58,18 +58,23 @@ const userSchema: Schema<IUser> = new mongoose.Schema({
   passwordChangedAt: Date,
   passwordResetToken: String,
   passwordResetExpires: Date,
+  active: {
+    type: Boolean,
+    default: true,
+    select: false,
+  },
 });
 
 userSchema.pre("save", async function (next): Promise<void> {
   if (!this.isModified("password")) return next();
-  //Hash password
+  // Hash password
   this.password = await bcrypt.hash(this.password, 12);
-  //Delete pwConfrim field
+  // Delete pwConfirm field
   this.passwordConfirm = undefined;
   next();
 });
 
-// Update pwchangedAt
+// Update passwordChangedAt
 userSchema.pre("save", function (next) {
   const user = this as IUser;
 
@@ -80,7 +85,14 @@ userSchema.pre("save", function (next) {
   next();
 });
 
-// correctPassword metod för att jämföra lösenord
+// Filter out inactive users
+userSchema.pre(/^find/, function (this: Query<any, any>, next) {
+  // 'this' refers to the current query
+  this.find({ active: { $ne: false } });
+  next();
+});
+
+// Correct password comparison
 userSchema.methods.correctPassword = async function (
   candidatePassword: string,
   userPassword: string
@@ -88,7 +100,7 @@ userSchema.methods.correctPassword = async function (
   return await bcrypt.compare(candidatePassword, userPassword);
 };
 
-// Metod för att kontrollera om lösenordet ändrades efter att JWT-token genererades
+// Check if the password was changed after JWT was issued
 userSchema.methods.changedPasswordAfter = function (
   JWTTimestamp: number
 ): boolean {
@@ -102,6 +114,7 @@ userSchema.methods.changedPasswordAfter = function (
   return false;
 };
 
+// Create password reset token
 userSchema.methods.createPasswordResetToken = function () {
   const resetToken = crypto.randomBytes(32).toString("hex");
 
@@ -109,8 +122,6 @@ userSchema.methods.createPasswordResetToken = function () {
     .createHash("sha256")
     .update(resetToken)
     .digest("hex");
-
-  console.log({ resetToken }, this.passwordResetToken);
 
   this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
 

@@ -61,6 +61,17 @@ export const updateMe = asyncHandler(
   }
 );
 
+export const deleteMe = asyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    await User.findByIdAndUpdate(req.user?.id, { active: false });
+
+    res.status(204).json({
+      status: "success",
+      data: null,
+    });
+  }
+);
+
 // Hämta en specifik användare
 export const getUser = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {

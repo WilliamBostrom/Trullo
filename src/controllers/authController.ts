@@ -25,6 +25,7 @@ export const signup = asyncHandler(
       passwordChangedAt: req.body.passwordChangedAt,
       passwordResetToken: req.body.passwordResetToken,
       passwordResetExpires: req.body.passwordResetToken,
+      active: req.body.active,
     });
 
     const token = signToken(newUser._id.toHexString());
