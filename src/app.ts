@@ -1,5 +1,6 @@
 import express, { Request, Response, NextFunction } from "express";
 import morgan from "morgan";
+import rateLimit from "express-rate-limit";
 import AppError from "./middlewares/AppError";
 import ErrorHandler from "./controllers/ErrorController";
 import taskRouter from "./routes/taskRoute";
@@ -11,6 +12,14 @@ const app = express();
 if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
 }
+
+// Brute force - Säkerhet för att förhindra för mycket API anrop
+const limiter = rateLimit({
+  max: 100,
+  windowMs: 60 * 60 * 1000,
+  message: "Too many request from this IP, please try again in an hour",
+});
+app.use("/api", limiter);
 
 // Utöka Request-typen för att inkludera `requestTime`
 interface CustomRequest extends Request {
