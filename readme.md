@@ -47,11 +47,11 @@ I Trullo finns två roller:
 - **express-rate-limit:** Implementerar hastighetsbegränsning för att skydda API
   från brute force-attacker genom att begränsa antalet förfrågningar en användare kan göra under en viss tidsperiod.
 
-- - - Lösenord hashas med bcryptjs och sparas aldrig i klartext i databasen.
+- Lösenord hashas med bcryptjs och sparas aldrig i klartext i databasen.
 
 #### Bonus
 
-- Jag har tyvärr även inkluderat min config.env i .gitignore, men följ stegen nedan eller kontakta mig om något fel inträffar.
+- Jag har även inkluderat min config.env i .gitignore, men följ stegen nedan i _Kom igång med projektet_ eller kontakta mig om något fel inträffar.
 
 ### Felhantering
 
