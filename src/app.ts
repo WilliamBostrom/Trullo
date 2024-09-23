@@ -1,6 +1,8 @@
 import express, { Request, Response, NextFunction } from "express";
 import morgan from "morgan";
 import rateLimit from "express-rate-limit";
+import helmet from "helmet";
+
 import AppError from "./middlewares/AppError";
 import ErrorHandler from "./controllers/ErrorController";
 import taskRouter from "./routes/taskRoute";
@@ -8,6 +10,9 @@ import userRouter from "./routes/userRoute";
 
 // Skapa Express-app
 const app = express();
+
+// Security http headers
+app.use(helmet());
 
 if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));

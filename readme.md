@@ -40,6 +40,15 @@ I Trullo finns två roller:
 
 - **Övriga säkerhetsåtgärder**: Lösenord hanteras säkert genom att de hashas och aldrig visas i databasen. Applikationen har även olika felmeddelanden beroende på om den körs i produktions- eller utvecklingsläge, vilket ger bättre insikter och säkerhet för användarna.
 
+#### **Säkerhetspaket**:
+
+- **helmet:** Används för att öka säkerheten i HTTP-headers. Det skyddar mot flera sårbarheter som XSS, Clickjacking och MIME-typ sniffing.
+
+- **express-rate-limit:** Implementerar hastighetsbegränsning för att skydda API
+  från brute force-attacker genom att begränsa antalet förfrågningar en användare kan göra under en viss tidsperiod.
+
+- - - Lösenord hashas med bcryptjs och sparas aldrig i klartext i databasen.
+
 #### Bonus
 
 - Jag har tyvärr även inkluderat min config.env i .gitignore, men följ stegen nedan eller kontakta mig om något fel inträffar.
