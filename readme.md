@@ -16,6 +16,22 @@
 
 - **Ta bort uppgifter**: Användare har möjlighet att ta bort uppgifter som inte längre behövs.
 
+Här är en uppdatering av ditt dokument som inkluderar information om routes och rollbaserad åtkomst i Trullo:
+
+Trullo
+Användarregistrering och Inloggning
+Registrering: Användare kan registrera sig genom att ange namn, e-post och lösenord. Vid registrering skapas en ny användare i databasen, och en JWT-token genereras för autentisering.
+
+Inloggning: Användare kan logga in genom att ange e-postadress och lösenord. Vid lyckad inloggning returneras en JWT-token som används för att skydda privata rutter.
+
+### Rollbaserad Åtkomstkontroll
+
+I Trullo finns två roller:
+
+1. **Admin:** Har full tillgång till systemet och kan hantera alla användare och uppgifter.
+
+2. **User:** Kan endast hantera sina egna uppgifter och uppdatera sin egen profil.
+
 ### Säkerhet och Åtkomstkontroll
 
 - **JWT-autentisering**: Applikationen använder JWT för att autentisera användare. Endast autentiserade användare kan utföra skyddade operationer, som att skapa, uppdatera eller ta bort uppgifter.
@@ -88,7 +104,7 @@ Istället för att lista alla endpoints här, kontakta mig för en inbjudan till
 
 ## Databasval
 
-Jag har valt att använda endast MongoDB och inte GraphQL för att fördjupa mig i MongoDB. Många andra fullstack-projekt använder MERN och MEAN-stackarna, så jag ville öka min förståelse och erfarenhet inom detta område.
+Jag har valt att använda endast MongoDB med endast REST för att fördjupa mig i MongoDB. Många andra fullstack-projekt använder MERN och MEAN-stackarna, så jag ville öka min förståelse och erfarenhet inom detta område och valde därför MongoDB som databasval.
 
 ## Konfiguration och paket
 
