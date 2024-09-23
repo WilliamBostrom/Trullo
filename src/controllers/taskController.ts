@@ -31,7 +31,10 @@ export const getTask = asyncHandler(
 
 export const createTask = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
-    const newTask = await Task.create(req.body);
+    const newTask = await Task.create({
+      ...req.body,
+      assignedTo: req.user?._id, // Använd req.user._id från den inloggade användaren
+    });
     res.status(200).json({
       status: "success",
       data: { newTask },
@@ -65,5 +68,32 @@ export const deleteTask = asyncHandler(
       status: "success",
       data: null,
     });
+  }
+);
+
+export const restrictToOwnerOrAdmin = asyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const task = await Task.findById(req.params.id);
+
+    if (!task) {
+      return next(new AppError("Task not found", 404));
+    }
+
+    // Kontrollera om 'assignedTo' finns
+    if (!task.assignedTo) {
+      return next(new AppError("Task is not assigned to this user", 400));
+    }
+
+    // Om användaren inte är admin, kontrollera att de äger uppgiften
+    if (
+      req.user?.role !== "admin" &&
+      task.assignedTo.toString() !== req.user?._id.toString()
+    ) {
+      return next(
+        new AppError("You do not have permission to modify this task", 403)
+      );
+    }
+
+    next();
   }
 );

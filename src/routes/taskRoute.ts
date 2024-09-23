@@ -8,12 +8,22 @@ const router = express.Router();
 router
   .route("/")
   .get(authController.protect, taskController.getAllTasks)
-  .post(taskController.createTask);
+  .post(authController.protect, taskController.createTask);
 
 router
   .route("/:id")
-  .get(taskController.getTask)
-  .patch(taskController.updateTask)
-  .delete(taskController.deleteTask);
+  .get(authController.protect, taskController.getTask) // Alla kan se en specifik uppgift
+  .patch(
+    authController.protect,
+    authController.restrictTo("admin", "user"),
+    taskController.restrictToOwnerOrAdmin,
+    taskController.updateTask
+  )
+  .delete(
+    authController.protect,
+    authController.restrictTo("admin", "user"),
+    taskController.restrictToOwnerOrAdmin,
+    taskController.deleteTask
+  );
 
 export default router;
