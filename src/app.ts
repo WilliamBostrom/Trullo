@@ -2,6 +2,7 @@ import express, { Request, Response, NextFunction } from "express";
 import morgan from "morgan";
 import rateLimit from "express-rate-limit";
 import helmet from "helmet";
+import mongoSanitize from "express-mongo-sanitize";
 
 import AppError from "./middlewares/AppError";
 import ErrorHandler from "./controllers/ErrorController";
@@ -33,6 +34,9 @@ interface CustomRequest extends Request {
 
 // Middleware för att lägga till requestTime
 app.use(express.json());
+
+// Sanera data och skydda mot NoSQL-query-injektioner.
+app.use(mongoSanitize());
 
 app.use((req: CustomRequest, res: Response, next: NextFunction) => {
   req.requestTime = new Date().toISOString();

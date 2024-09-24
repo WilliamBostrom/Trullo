@@ -47,6 +47,8 @@ I Trullo finns två roller:
 - **express-rate-limit:** Implementerar hastighetsbegränsning för att skydda API
   från brute force-attacker genom att begränsa antalet förfrågningar en användare kan göra under en viss tidsperiod.
 
+  - **express-mongo-sanitize:** Används för att sanera data och skydda mot NoSQL-query-injektioner.
+
 - Lösenord hashas med bcryptjs och sparas aldrig i klartext i databasen.
 
 #### Bonus
